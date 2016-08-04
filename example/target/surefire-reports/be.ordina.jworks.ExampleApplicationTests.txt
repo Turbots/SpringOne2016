@@ -1,4 +1,0 @@
--------------------------------------------------------------------------------
-Test set: be.ordina.jworks.ExampleApplicationTests
--------------------------------------------------------------------------------
-Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.265 sec - in be.ordina.jworks.ExampleApplicationTests
