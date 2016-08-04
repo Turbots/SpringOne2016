@@ -1,0 +1,12 @@
+---
+memory: 512M
+instances: 2
+env:
+  SPRING_PROFILES_ACTIVE : cloud
+  JBP_CONFIG_OPEN_JDK_JRE: '[memory_calculator: {memory_heuristics: {heap: 70, metaspace: 10, stack: 10, native: 10}}]'
+applications:
+- name: rpsls
+  path: target/rock-paper-scissors-lizard-spock-0.0.1-SNAPSHOT.jar
+  buildpack: https://github.com/cloudfoundry/java-buildpack
+  timeout: 120
+cf logs
