@@ -1,0 +1,8 @@
+= social-redis-spring-boot-starter
+
+Provides a Spring Boot Starter library to integrate Spring Social with a Redis datastore
+
+== Using the starter
+
+* Add the `social-redis-spring-boot-starter` as a dependency for your project
+* Make sure you have a working `RedisConnectionFactory` which connects to your Redis instance

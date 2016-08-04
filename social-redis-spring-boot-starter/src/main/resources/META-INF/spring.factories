@@ -1,0 +1,3 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+be.ordina.jworks.social.redis.SocialRedisAutoConfiguration,\
+org.springframework.boot.autoconfigure.social.TwitterRedisAutoConfiguration

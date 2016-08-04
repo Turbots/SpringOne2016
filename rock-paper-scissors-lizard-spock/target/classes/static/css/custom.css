@@ -1,0 +1,15 @@
+@media (min-width: 768px) {
+    .container {
+        max-width: 730px;
+    }
+}
+
+.bordered-img {
+    padding: 5px;
+    border: solid 1px #EFEFEF;
+}
+
+.rules > li {
+    font-size: 20px;
+    padding: 10px 0;
+}
