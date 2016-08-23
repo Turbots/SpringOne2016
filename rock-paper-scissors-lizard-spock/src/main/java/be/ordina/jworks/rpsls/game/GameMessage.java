@@ -11,6 +11,6 @@ public class GameMessage {
 
     private GameEvent gameEvent;
     private String username;
-    private String imageUrl;
+    private String image;
 
 }

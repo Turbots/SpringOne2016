@@ -9,4 +9,3 @@ applications:
   path: target/rock-paper-scissors-lizard-spock-0.0.1-SNAPSHOT.jar
   buildpack: https://github.com/cloudfoundry/java-buildpack
   timeout: 120
-cf logs

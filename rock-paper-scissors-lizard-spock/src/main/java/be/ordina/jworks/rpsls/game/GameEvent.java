@@ -2,6 +2,7 @@ package be.ordina.jworks.rpsls.game;
 
 public enum GameEvent {
 
+    SPECTATOR_JOINED,
     PLAYER_ONE_JOINED,
     PLAYER_TWO_JOINED,
     PLAYER_ONE_ROCK,

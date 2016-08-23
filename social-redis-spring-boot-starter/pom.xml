@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>be.ordina.jworks</groupId>
     <artifactId>social-redis-spring-boot-starter</artifactId>
-    <version>0.0.4-SNAPSHOT</version>
+    <version>0.0.5-SNAPSHOT</version>
     <name>social-redis-spring-boot-starter</name>
     <description>Spring Boot Starter that integrates Spring Social with a Redis database</description>
     <url>http://github.com/ordina-jworks/social-redis-spring-boot-starter</url>
