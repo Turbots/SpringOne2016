@@ -108,6 +108,10 @@ public class GameController {
     private Game validatePlayerTwoJoined(final String playerName, final String playerImage) {
         Game game = findLatestRunningGame();
 
+        if (game.getPlayerOne().equals(playerName)) {
+            throw new IllegalStateException("GAME [{" + game.getId() + "}] cannot be the same as PLAYER_ONE");
+        }
+
         game.setPlayerTwo(playerName);
         game.setPlayerTwoImage(playerImage);
 
@@ -163,9 +167,11 @@ public class GameController {
             return Optional.empty();
         }
 
-        Collections.sort(games.stream()
-                .filter((game -> game == null || game.getId() == null))
-                .collect(Collectors.toList()));
+        List<Game> sortedGames = games.stream()
+                .filter((game -> game != null && game.getId() != null))
+                .collect(Collectors.toList());
+
+        Collections.sort(sortedGames);
 
         return Optional.ofNullable(games.get(0));
     }

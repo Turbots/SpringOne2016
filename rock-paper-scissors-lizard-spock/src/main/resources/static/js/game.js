@@ -3,7 +3,6 @@ var stompClient = null;
 var player = null;
 var playerOne = null;
 var playerTwo = null;
-var gameOn = false;
 
 function initPlayerInfo() {
     $.get('/env', function (env) {
@@ -73,7 +72,7 @@ function processGameEvent(gameMessage) {
                 }
             }
         });
-        if (username != player.displayName) {
+        if (username != player.name) {
             addToChat(username, 'joined');
         }
     } else if (event === 'PLAYER_ONE_JOINED') {
@@ -103,10 +102,6 @@ function processGameEvent(gameMessage) {
     } else if (event === 'PLAYER_TWO_SPOCK') {
 
     }
-
-    if (playerOne != null && playerTwo != null) {
-        gameOn = true;
-    }
 }
 
 function chat() {
@@ -125,12 +120,12 @@ function joinGame() {
     if (playerOne == null) {
         stompClient.send('/game/game', {}, JSON.stringify({
             'gameEvent': 'PLAYER_ONE_JOINED',
-            'imageUrl': player.imageUrl
+            'image': player.image
         }));
     } else if (playerTwo == null) {
         stompClient.send("/game/game", {}, JSON.stringify({
             'gameEvent': 'PLAYER_TWO_JOINED',
-            'imageUrl': player.imageUrl
+            'image': player.image
         }));
     }
 }
@@ -144,7 +139,7 @@ function setPlayerOne(username, image) {
     var playerOneImg = $('#playerOneImg');
     playerOneImg.attr('src', image);
     playerOneImg.show();
-    if (username == player.displayName) {
+    if (username == player.name) {
         $('#joinButton2').hide();
     }
     $('#joinButton1').hide();
@@ -160,7 +155,7 @@ function setPlayerTwo(username, image) {
     playerTwoImg.attr('src', image);
     playerTwoImg.show();
     $('#joinButton2').hide();
-    if (username == player.displayName) {
+    if (username == player.name) {
         $('#joinButton1').hide();
     }
 }
