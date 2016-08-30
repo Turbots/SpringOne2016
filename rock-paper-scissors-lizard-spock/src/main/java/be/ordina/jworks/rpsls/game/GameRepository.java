@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface GameRepository extends CrudRepository<Game, Long> {
+public interface GameRepository extends CrudRepository<Game, String> {
 
     List<Game> findAll();
 }

@@ -11,7 +11,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class Player implements Serializable {
 
-    private String name;
+    private String username;
     private String image;
     private String url;
 }

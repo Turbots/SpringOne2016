@@ -34,7 +34,7 @@ public class PlayerController {
 
             if (connection != null) {
                 Player player = Player.builder()
-                        .name(connection.getDisplayName())
+                        .username(connection.getDisplayName())
                         .image(connection.getImageUrl())
                         .url(connection.getProfileUrl()).build();
 

@@ -1,12 +1,10 @@
 var stompClient = null;
 
 var player = null;
-var playerOne = null;
-var playerTwo = null;
+var game = null;
 
 function initPlayerInfo() {
     $.get('/env', function (env) {
-        //noinspection JSUnresolvedVariable
         var cloud = env.cloud;
         $.get('/game/player', function (response) {
             player = response;
@@ -32,12 +30,13 @@ function connect(cloudURI) {
             var body = JSON.parse(chatMessage.body);
             processChat(body);
         });
-        stompClient.subscribe('/topic/game', function (gameMessage) {
-            var body = JSON.parse(gameMessage.body);
-            processGameEvent(body);
+        stompClient.subscribe('/topic/game', function (gameMessageWrapper) {
+            var gameMessage = JSON.parse(gameMessageWrapper.body);
+            processGameEvent(gameMessage);
         });
         stompClient.send('/game/game', {}, JSON.stringify({
-            'gameEvent': 'SPECTATOR_JOINED'
+            'event': 'SPECTATOR_JOINED',
+            'image': player.image
         }));
     });
 }
@@ -55,52 +54,33 @@ function addToChat(username, message) {
 }
 
 function processGameEvent(gameMessage) {
-    var event = gameMessage.gameEvent;
-    var username = gameMessage.username;
-    var image = gameMessage.image;
-
-    if (event == 'SPECTATOR_JOINED') {
-        $.get('/game/latest', function (response) {
-            console.log(response);
-            if (response.id) {
-                console.log('Game [' + response.id + '] has been running since [' + response.start + ']');
-                if (response.playerOne) {
-                    setPlayerOne(response.playerOne, response.playerOneImage);
+    if (gameMessage.event == 'SPECTATOR_JOINED') {
+        addToChat(gameMessage.username, 'joined');
+        if (gameMessage.username == player.username) {
+            if (gameMessage.game && gameMessage.game.id) {
+                game = gameMessage.game;
+                if (game.playerOne) {
+                    setPlayerOne();
                 }
-                if (response.playerTwo) {
-                    setPlayerTwo(response.playerTwo, response.playerTwoImage);
+                if (game.playerTwo) {
+                    setPlayerTwo();
+                }
+                if (game.playerOne && game.playerTwo) {
+                    startGame();
                 }
             }
-        });
-        if (username != player.name) {
-            addToChat(username, 'joined');
         }
-    } else if (event === 'PLAYER_ONE_JOINED') {
-        setPlayerOne(username, image);
-    } else if (event === 'PLAYER_TWO_JOINED') {
-        setPlayerTwo(username, image);
-    } else if (event === 'PLAYER_ONE_ROCK') {
-
-    } else if (event === 'PLAYER_ONE_PAPER') {
-
-    } else if (event === 'PLAYER_ONE_SCISSORS') {
-
-    } else if (event === 'PLAYER_ONE_LIZARD') {
-
-    } else if (event === 'PLAYER_ONE_SPOCK') {
-
-    } else if (event === 'PLAYER_TWO_ROCK') {
-
-    } else if (event === 'PLAYER_TWO_PAPER') {
-
-    } else if (event === 'PLAYER_TWO_SCISSORS') {
-
-    } else if (event === 'PLAYER_TWO_LIZARD') {
-
-    } else if (event === 'PLAYER_TWO_SCISSORS') {
-
-    } else if (event === 'PLAYER_TWO_SPOCK') {
-
+    } else if (gameMessage.event === 'PLAYER_ONE_JOINED') {
+        game = gameMessage.game;
+        setPlayerOne();
+    } else if (gameMessage.event === 'PLAYER_TWO_JOINED') {
+        game = gameMessage.game;
+        setPlayerTwo();
+        startGame();
+    } else if (gameMessage.event === 'PLAYER_ONE_WINS') {
+        setWinner(gameMessage);
+    } else if (gameMessage.event === 'PLAYER_TWO_WINS') {
+        setWinner(gameMessage);
     }
 }
 
@@ -117,47 +97,87 @@ function chat() {
 }
 
 function joinGame() {
-    if (playerOne == null) {
+    if (game == null || game.playerOne == null) {
         stompClient.send('/game/game', {}, JSON.stringify({
-            'gameEvent': 'PLAYER_ONE_JOINED',
+            'event': 'PLAYER_ONE_JOINED',
             'image': player.image
         }));
-    } else if (playerTwo == null) {
+    } else if (game.playerTwo == null) {
         stompClient.send("/game/game", {}, JSON.stringify({
-            'gameEvent': 'PLAYER_TWO_JOINED',
-            'image': player.image
+            'event': 'PLAYER_TWO_JOINED',
+            'image': player.image,
+            'game': game
         }));
     }
 }
 
-function setPlayerOne(username, image) {
-    playerOne = {
-        username: username,
-        image: image
-    };
-    $('#playerOne').val(username);
+function setPlayerOne() {
+    $('#playerOne').val(game.playerOne);
     var playerOneImg = $('#playerOneImg');
-    playerOneImg.attr('src', image);
+    playerOneImg.attr('src', game.playerOneImage);
     playerOneImg.show();
-    if (username == player.name) {
+    if (game.playerOne == player.username) {
         $('#joinButton2').hide();
     }
     $('#joinButton1').hide();
 }
 
-function setPlayerTwo(username, image) {
-    playerTwo = {
-        username: username,
-        image: image
-    };
-    $('#playerTwo').val(username);
+function setPlayerTwo() {
+    $('#playerTwo').val(game.playerTwo);
     var playerTwoImg = $('#playerTwoImg');
-    playerTwoImg.attr('src', image);
+    playerTwoImg.attr('src', game.playerTwoImage);
     playerTwoImg.show();
     $('#joinButton2').hide();
-    if (username == player.name) {
+    if (game.playerTwo == player.username) {
         $('#joinButton1').hide();
     }
+}
+
+function startGame() {
+    console.log('Starting Game - Enabling controls');
+    if (game.playerOne && game.playerOne == player.username) {
+        $('#playerOneControls').show();
+        $('#p1Button').show();
+    }
+    if (game.playerTwo && game.playerTwo == player.username) {
+        $('#playerTwoControls').show();
+        $('#p2Button').show();
+    }
+}
+
+function p1() {
+    stompClient.send('/game/game', {}, JSON.stringify({
+        'event': $('#playerOneControls').val(),
+        'game': game
+    }));
+}
+
+function p2() {
+    stompClient.send('/game/game', {}, JSON.stringify({
+        'event': $('#playerTwoControls').val(),
+        'game': game
+    }));
+}
+
+function setWinner(gameMessage) {
+    console.log('GAME ' + gameMessage.game.id + ' is finished with result: ' + gameMessage.event);
+
+    console.log('[' + gameMessage.game.playerOne + '] had [' + gameMessage.game.playerOneMove + ']');
+    console.log('[' + gameMessage.game.playerTwo + '] had [' + gameMessage.game.playerTwoMove + ']');
+
+    game = null;
+
+    $('#playerOneControls').hide();
+    $('#p1Button').hide();
+    $('#playerOneImg').hide();
+    $('#playerOne').val('');
+    $('#playerTwoControls').hide();
+    $('#p2Button').hide();
+    $('#playerTwoImg').hide();
+    $('#playerTwo').val('');
+
+    $('#joinButton1').show();
+    $('#joinButton2').show();
 }
 
 initPlayerInfo();

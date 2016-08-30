@@ -1,5 +1,6 @@
 package be.ordina.jworks.rpsls.game;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,7 +20,7 @@ public class Game implements Comparable<Game> {
 
     @Id
     @Indexed
-    private Long id;
+    private String id;
 
     private LocalDateTime start;
     private LocalDateTime end;
@@ -29,6 +30,16 @@ public class Game implements Comparable<Game> {
     private String playerTwo;
     private String playerTwoImage;
     private int playerTwoMove;
+
+    @JsonIgnore
+    public LocalDateTime getStart() {
+        return this.start;
+    }
+
+    @JsonIgnore
+    public LocalDateTime getEnd() {
+        return this.end;
+    }
 
     @Override
     public int compareTo(Game that) {

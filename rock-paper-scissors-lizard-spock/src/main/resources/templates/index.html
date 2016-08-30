@@ -23,7 +23,7 @@
                 <li sec:authorize="isAuthenticated()">
                     <form th:action="@{/connect/twitter}" method="post" class="navbar-form navbar-left">
                         <button type="submit" class="btn btn-success">Logout</button>
-                        <input type="hidden" name="_method" value="delete" />
+                        <input type="hidden" name="_method" value="delete"/>
                     </form>
                 </li>
             </ul>
@@ -63,9 +63,18 @@
                     <div class="panel-body" style="min-height: 200px; max-height: 200px; overflow-y: scroll">
                         <button id="joinButton1" class="btn btn-primary" onclick="joinGame()">Join</button>
                         <img id="playerOneImg" width="50" height="50" style="display: none;"/>
+                        <select id="playerOneControls" name="options" style="display: none;">
+                            <option value="PLAYER_ONE_ROCK">Rock</option>
+                            <option value="PLAYER_ONE_PAPER">Paper</option>
+                            <option value="PLAYER_ONE_SCISSORS">Scissors</option>
+                            <option value="PLAYER_ONE_LIZARD">Lizard</option>
+                            <option value="PLAYER_ONE_SPOCK">Spock</option>
+                        </select>
+                        <button id="p1Button" class="btn btn-primary" onclick="p1()" style="display: none;">Play!</button>
                     </div>
                     <div class="panel-footer">
-                        <input id="playerOne" type="text" readonly="readonly" class="form-control input-sm" placeholder="Player One"/>
+                        <input id="playerOne" type="text" readonly="readonly" class="form-control input-sm"
+                               placeholder="Player One"/>
                     </div>
                 </div>
             </div>
@@ -77,9 +86,18 @@
                     <div class="panel-body" style="min-height: 200px; max-height: 200px; overflow-y: scroll">
                         <button id="joinButton2" class="btn btn-primary" onclick="joinGame()">Join</button>
                         <img id="playerTwoImg" width="50" height="50" style="display: none;"/>
+                        <select id="playerTwoControls" name="options" style="display: none;">
+                            <option value="PLAYER_TWO_ROCK">Rock</option>
+                            <option value="PLAYER_TWO_PAPER">Paper</option>
+                            <option value="PLAYER_TWO_SCISSORS">Scissors</option>
+                            <option value="PLAYER_TWO_LIZARD">Lizard</option>
+                            <option value="PLAYER_TWO_SPOCK">Spock</option>
+                        </select>
+                        <button id="p2Button" class="btn btn-primary" onclick="p2()" style="display: none;">Play!</button>
                     </div>
                     <div class="panel-footer">
-                        <input id="playerTwo" type="text" readonly="readonly" class="form-control input-sm" placeholder="Player Two"/>
+                        <input id="playerTwo" type="text" readonly="readonly" class="form-control input-sm"
+                               placeholder="Player Two"/>
                     </div>
                 </div>
             </div>
