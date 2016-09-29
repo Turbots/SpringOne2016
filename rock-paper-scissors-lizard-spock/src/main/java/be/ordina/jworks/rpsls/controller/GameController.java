@@ -1,10 +1,15 @@
 package be.ordina.jworks.rpsls.controller;
 
 import be.ordina.jworks.rpsls.game.*;
+import be.ordina.jworks.rpsls.game.pubsub.ChatEventPublisher;
+import be.ordina.jworks.rpsls.game.pubsub.GameEventPublisher;
+import be.ordina.jworks.rpsls.game.websocket.ChatMessage;
+import be.ordina.jworks.rpsls.game.websocket.GameMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
@@ -22,53 +27,72 @@ public class GameController {
 
     private final GameRepository gameRepository;
     private final GameLogic gameLogic;
+    private final ChatEventPublisher chatEventPublisher;
+    private final GameEventPublisher gameEventPublisher;
 
     @Autowired
-    public GameController(final GameRepository gameRepository, final GameLogic gameLogic) {
+    public GameController(final GameRepository gameRepository, final GameLogic gameLogic, ChatEventPublisher chatEventPublisher, final GameEventPublisher gameEventPublisher) {
         this.gameRepository = gameRepository;
         this.gameLogic = gameLogic;
+        this.chatEventPublisher = chatEventPublisher;
+        this.gameEventPublisher = gameEventPublisher;
+    }
+
+    @RequestMapping("/game/player")
+    public Player getPlayer() {
+        return (Player) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 
     @MessageMapping("/chat")
-    @SendTo("/topic/chat")
-    public ChatMessage chat(final ChatMessage chatMessage, final Principal principal) throws Exception {
+    public void chat(final ChatMessage chatMessage, final Principal principal) throws Exception {
         log.info("Chat >> [{}] >> [{}]", principal.getName(), chatMessage.getMessage());
-        return ChatMessage.builder()
+
+        ChatMessage message = ChatMessage.builder()
                 .message(chatMessage.getMessage())
                 .username(principal.getName())
                 .build();
+
+        this.chatEventPublisher.publish(message);
     }
 
     @MessageMapping("/game")
-    @SendTo("/topic/game")
-    public GameMessage event(final GameMessage gameMessage, final Principal principal) throws Exception {
-        log.info("Game [{}] >> [{}]", principal.getName(), gameMessage.getEvent());
+    public void event(final GameMessage gameMessage, final Principal principal) throws Exception {
+        log.info("Player [{}] >> [{}]", principal.getName(), gameMessage.getEvent());
 
         switch (gameMessage.getEvent()) {
             case PLAYER_ONE_JOINED:
-                return validatePlayerOneJoined(principal.getName(), gameMessage);
+                publish(playerOneJoined(principal.getName(), gameMessage));
+                break;
             case PLAYER_ONE_LIZARD:
             case PLAYER_ONE_PAPER:
             case PLAYER_ONE_ROCK:
             case PLAYER_ONE_SCISSORS:
             case PLAYER_ONE_SPOCK:
-                return validatePlayerOneMoved(principal.getName(), gameMessage);
+                publish(playerOneMoved(principal.getName(), gameMessage));
+                break;
             case PLAYER_TWO_JOINED:
-                return validatePlayerTwoJoined(principal.getName(), gameMessage);
+                publish(playerTwoJoined(principal.getName(), gameMessage));
+                break;
             case PLAYER_TWO_LIZARD:
             case PLAYER_TWO_PAPER:
             case PLAYER_TWO_ROCK:
             case PLAYER_TWO_SCISSORS:
             case PLAYER_TWO_SPOCK:
-                return validatePlayerTwoMoved(principal.getName(), gameMessage);
+                publish(playerTwoMoved(principal.getName(), gameMessage));
+                break;
             case SPECTATOR_JOINED:
-                return processSpectator(principal.getName(), gameMessage);
+                publish(spectatorJoined(principal.getName(), gameMessage));
+                break;
             default:
                 throw new IllegalStateException("GameEvent [" + gameMessage.getEvent() + "] is not allowed!");
         }
     }
 
-    private GameMessage validatePlayerOneJoined(final String username, final GameMessage gameMessage) {
+    private void publish(final GameMessage gameMessage) {
+        this.gameEventPublisher.publish(gameMessage);
+    }
+
+    private GameMessage playerOneJoined(final String username, final GameMessage gameMessage) {
         Optional<Game> latestGame = findLatestGame();
 
         if (latestGame.isPresent()) {
@@ -89,7 +113,7 @@ public class GameController {
         return GameMessage.of(gameMessage).game(game).build();
     }
 
-    private GameMessage validatePlayerTwoJoined(final String username, final GameMessage gameMessage) {
+    private GameMessage playerTwoJoined(final String username, final GameMessage gameMessage) {
         notNull(gameMessage.getGame(), "Game object should at least contain the Game ID");
 
         Game currentGame = findRequiredGame(gameMessage.getGame().getId());
@@ -107,7 +131,7 @@ public class GameController {
         return GameMessage.of(gameMessage).game(game).build();
     }
 
-    private GameMessage validatePlayerOneMoved(final String username, final GameMessage gameMessage) {
+    private GameMessage playerOneMoved(final String username, final GameMessage gameMessage) {
         notNull(gameMessage.getGame(), "Game object should at least contain the Game ID");
 
         Game currentGame = findRequiredGame(gameMessage.getGame().getId());
@@ -127,7 +151,7 @@ public class GameController {
         throw new IllegalStateException("Game [{}]: Player [" + username + "] is not PLAYER_ONE and cannot make this move");
     }
 
-    private GameMessage validatePlayerTwoMoved(final String username, final GameMessage gameMessage) {
+    private GameMessage playerTwoMoved(final String username, final GameMessage gameMessage) {
         notNull(gameMessage.getGame(), "Game object should at least contain the Game ID");
 
         Game currentGame = findRequiredGame(gameMessage.getGame().getId());
@@ -159,7 +183,7 @@ public class GameController {
         return currentGame;
     }
 
-    private GameMessage processSpectator(final String username, final GameMessage gameMessage) {
+    private GameMessage spectatorJoined(final String username, final GameMessage gameMessage) {
         Optional<Game> latestGame = findLatestGame();
         return GameMessage.of(gameMessage).username(username).game(latestGame.isPresent() ? latestGame.get() : null).build();
     }

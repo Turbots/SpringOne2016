@@ -21,9 +21,8 @@
                     </form>
                 </li>
                 <li sec:authorize="isAuthenticated()">
-                    <form th:action="@{/connect/twitter}" method="post" class="navbar-form navbar-left">
+                    <form th:action="@{/logout}" method="post" class="navbar-form navbar-left">
                         <button type="submit" class="btn btn-success">Logout</button>
-                        <input type="hidden" name="_method" value="delete"/>
                     </form>
                 </li>
             </ul>

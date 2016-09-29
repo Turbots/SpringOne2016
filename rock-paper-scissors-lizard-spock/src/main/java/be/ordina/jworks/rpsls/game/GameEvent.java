@@ -1,6 +1,8 @@
 package be.ordina.jworks.rpsls.game;
 
-public enum GameEvent {
+import java.io.Serializable;
+
+public enum GameEvent implements Serializable {
 
     SPECTATOR_JOINED(0),
     PLAYER_ONE_JOINED(0),

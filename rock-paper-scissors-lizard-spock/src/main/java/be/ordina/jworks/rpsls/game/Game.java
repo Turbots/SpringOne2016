@@ -9,6 +9,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.index.Indexed;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Getter
@@ -16,7 +17,7 @@ import java.time.LocalDateTime;
 @Builder
 @RedisHash(value = "games", timeToLive = 1800)
 @AllArgsConstructor
-public class Game implements Comparable<Game> {
+public class Game implements Comparable<Game>, Serializable {
 
     @Id
     @Indexed

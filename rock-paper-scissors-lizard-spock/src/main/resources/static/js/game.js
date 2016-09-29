@@ -20,21 +20,23 @@ function initPlayerInfo() {
 function connect(cloudURI) {
     var socket;
     if (cloudURI) {
-        socket = new SockJS('https://' + cloudURI + ':4443/game');
+        socket = new SockJS('https://' + cloudURI + ':4443/app');
     } else {
-        socket = new SockJS('/game');
+        socket = new SockJS('/app');
     }
     stompClient = Stomp.over(socket);
     stompClient.connect({}, function () {
-        stompClient.subscribe('/topic/chat', function (chatMessage) {
-            var body = JSON.parse(chatMessage.body);
-            processChat(body);
+        stompClient.subscribe('/topic/chat', function (chatMessageWrapper) {
+            var chatMessage = JSON.parse(chatMessageWrapper.body);
+            console.log('received chat message: ' + chatMessage + ': ' + chatMessage.message + ', ' + chatMessage.username);
+            processChat(chatMessage);
         });
         stompClient.subscribe('/topic/game', function (gameMessageWrapper) {
             var gameMessage = JSON.parse(gameMessageWrapper.body);
+            console.log('received game message: ' + gameMessage);
             processGameEvent(gameMessage);
         });
-        stompClient.send('/game/game', {}, JSON.stringify({
+        stompClient.send('/app/game', {}, JSON.stringify({
             'event': 'SPECTATOR_JOINED',
             'image': player.image
         }));
@@ -45,12 +47,6 @@ function processChat(chatMessage) {
     var message = chatMessage.message;
     var username = chatMessage.username;
     addToChat(username, message);
-}
-
-function addToChat(username, message) {
-    var chatMessages = $('#chat-messages');
-    chatMessages.append('<li><b>' + username + ':</b> ' + message + '</li>');
-    $('#chat-box').scrollTop(chatMessages.height());
 }
 
 function processGameEvent(gameMessage) {
@@ -84,13 +80,19 @@ function processGameEvent(gameMessage) {
     }
 }
 
+function addToChat(username, message) {
+    var chatMessages = $('#chat-messages');
+    chatMessages.append('<li><b>' + username + ':</b> ' + message + '</li>');
+    $('#chat-box').scrollTop(chatMessages.height());
+}
+
 function chat() {
     var chatField = $('#chat-input');
     if (chatField.val().length < 1) {
         return false;
     } else {
         var message = chatField.val().substring(0, 50);
-        stompClient.send('/game/chat', {}, JSON.stringify({'message': message}));
+        stompClient.send('/app/chat', {}, JSON.stringify({'message': message}));
         chatField.val('');
         return false;
     }
@@ -98,15 +100,17 @@ function chat() {
 
 function joinGame() {
     if (game == null || game.playerOne == null) {
-        stompClient.send('/game/game', {}, JSON.stringify({
-            'event': 'PLAYER_ONE_JOINED',
-            'image': player.image
+        stompClient.send('/app/game', {}, JSON.stringify({
+            'username': player.username,
+            'image': player.image,
+            'event': 'PLAYER_ONE_JOINED'
         }));
     } else if (game.playerTwo == null) {
-        stompClient.send("/game/game", {}, JSON.stringify({
-            'event': 'PLAYER_TWO_JOINED',
+        stompClient.send("/app/game", {}, JSON.stringify({
+            'game': game,
+            'username': player.username,
             'image': player.image,
-            'game': game
+            'event': 'PLAYER_TWO_JOINED'
         }));
     }
 }
@@ -146,14 +150,14 @@ function startGame() {
 }
 
 function p1() {
-    stompClient.send('/game/game', {}, JSON.stringify({
+    stompClient.send('/app/game', {}, JSON.stringify({
         'event': $('#playerOneControls').val(),
         'game': game
     }));
 }
 
 function p2() {
-    stompClient.send('/game/game', {}, JSON.stringify({
+    stompClient.send('/app/game', {}, JSON.stringify({
         'event': $('#playerTwoControls').val(),
         'game': game
     }));

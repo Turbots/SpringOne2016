@@ -1,5 +1,6 @@
 package be.ordina.jworks.rpsls.configuration;
 
+import be.ordina.jworks.rpsls.game.Player;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -11,10 +12,14 @@ import java.util.Collections;
 public class AuthenticationUtil {
 
     public static void authenticate(Connection<?> connection) {
-        String displayName = connection.getDisplayName();
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(displayName, "", Collections.emptyList());
+        Player player = Player.builder()
+                .username(connection.getDisplayName())
+                .url(connection.getProfileUrl())
+                .image(connection.getImageUrl())
+                .build();
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(player.getUsername(), "", Collections.emptyList());
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
-        log.info("User {} connected successfully", displayName);
+        log.info("User {} connected successfully", player.getUsername());
     }
 }

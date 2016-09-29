@@ -30,15 +30,22 @@ public class PlayerController {
     @RequestMapping(method = RequestMethod.GET)
     public ResponseEntity<Player> userSession(final HttpSession session) {
         try {
-            Connection<Twitter> connection = connectionRepository.getPrimaryConnection(Twitter.class);
+            Object playerObject = session.getAttribute("player");
 
-            if (connection != null) {
-                Player player = Player.builder()
-                        .username(connection.getDisplayName())
-                        .image(connection.getImageUrl())
-                        .url(connection.getProfileUrl()).build();
+            if (playerObject == null) {
+                Connection<Twitter> connection = connectionRepository.getPrimaryConnection(Twitter.class);
 
-                session.setAttribute("player", player);
+                if (connection != null) {
+                    Player player = Player.builder()
+                            .username(connection.getDisplayName())
+                            .image(connection.getImageUrl())
+                            .url(connection.getProfileUrl()).build();
+
+                    session.setAttribute("player", player);
+                } else {
+                    log.error("Could not retrieve connection repository for session [" + session.getId() + "]");
+                    return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                }
             }
 
             Player player = (Player) session.getAttribute("player");
