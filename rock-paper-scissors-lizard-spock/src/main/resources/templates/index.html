@@ -35,7 +35,7 @@
         <h2>Who's Currently Playing?</h2>
         <hr/>
         <div class="row">
-            <div class="col-md-4">
+            <div class="col-md-4 col-sm-12">
                 <div class="panel panel-primary">
                     <div class="panel-heading">
                         <span class="glyphicon glyphicon-comment"></span> Chat
@@ -54,7 +54,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-4 col-sm-6">
                 <div class="panel panel-primary">
                     <div class="panel-heading">
                         <span class="glyphicon glyphicon-user"></span> Player One
@@ -69,7 +69,8 @@
                             <option value="PLAYER_ONE_LIZARD">Lizard</option>
                             <option value="PLAYER_ONE_SPOCK">Spock</option>
                         </select>
-                        <button id="p1Button" class="btn btn-primary" onclick="p1()" style="display: none;">Play!</button>
+                        <button id="p1Button" class="btn btn-primary" onclick="p1()" style="display: none;">Play!
+                        </button>
                     </div>
                     <div class="panel-footer">
                         <input id="playerOne" type="text" readonly="readonly" class="form-control input-sm"
@@ -77,7 +78,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-4 col-sm-6">
                 <div class="panel panel-primary">
                     <div class="panel-heading">
                         <span class="glyphicon glyphicon-user"></span> Player Two
@@ -92,7 +93,8 @@
                             <option value="PLAYER_TWO_LIZARD">Lizard</option>
                             <option value="PLAYER_TWO_SPOCK">Spock</option>
                         </select>
-                        <button id="p2Button" class="btn btn-primary" onclick="p2()" style="display: none;">Play!</button>
+                        <button id="p2Button" class="btn btn-primary" onclick="p2()" style="display: none;">Play!
+                        </button>
                     </div>
                     <div class="panel-footer">
                         <input id="playerTwo" type="text" readonly="readonly" class="form-control input-sm"
@@ -103,26 +105,45 @@
         </div>
     </div>
     <hr/>
-    <h2>How To Play?</h2>
     <div class="row">
-        <div class="col-lg-7">
+        <div class="col-lg-7 col-md-12">
             <img class="bordered-img" src="../static/img/rpsls.png" th:src="@{/img/rpsls.png}"
-                 width="400"
-                 height="300"/>
+                 width="95%"/>
         </div>
-        <div class="col-lg-5">
-            <ul class="list-unstyled rules">
-                <li>Scissors cuts Paper</li>
-                <li>Paper covers Rock</li>
-                <li>Rock crushes Lizard</li>
-                <li>Lizard poisons Spock</li>
-                <li>Spock smashes Scissors</li>
-                <li>Scissors decapitates Lizard</li>
-                <li>Lizard eats Paper</li>
-                <li>Paper disproves Spock</li>
-                <li>Spock vaporizes Rock</li>
-                <li>(and as it always has) Rock crushes Scissors</li>
-            </ul>
+        <div class="col-lg-5 col-md-12">
+            <h2>How To Play?</h2>
+            <table class="table table-striped">
+                <tr>
+                    <td>Scissors cuts Paper</td>
+                </tr>
+                <tr>
+                    <td>Paper covers Rock</td>
+                </tr>
+                <tr>
+                    <td>Rock crushes Lizard</td>
+                </tr>
+                <tr>
+                    <td>Lizard poisons Spock</td>
+                </tr>
+                <tr>
+                    <td>Spock smashes Scissors</td>
+                </tr>
+                <tr>
+                    <td>Scissors decapitates Lizard</td>
+                </tr>
+                <tr>
+                    <td>Lizard eats Paper</td>
+                </tr>
+                <tr>
+                    <td>Paper disproves Spock</td>
+                </tr>
+                <tr>
+                    <td>Spock vaporizes Rock</td>
+                </tr>
+                <tr>
+                    <td>(and as it always has) Rock crushes Scissors</td>
+                </tr>
+            </table>
         </div>
     </div>
 </div>

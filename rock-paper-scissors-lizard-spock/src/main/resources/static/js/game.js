@@ -3,6 +3,8 @@ var stompClient = null;
 var player = null;
 var game = null;
 
+var moves = ['ROCK', 'PAPER', 'SCISSORS', 'LIZARD', 'SPOCK'];
+
 function initPlayerInfo() {
     $.get('/env', function (env) {
         var cloud = env.cloud;
@@ -41,6 +43,11 @@ function connect(cloudURI) {
             'image': player.image
         }));
     });
+    $(document).keypress(function (e) {
+        if (e.which == 13) {
+            chat();
+        }
+    });
 }
 
 function processChat(chatMessage) {
@@ -76,6 +83,8 @@ function processGameEvent(gameMessage) {
     } else if (gameMessage.event === 'PLAYER_ONE_WINS') {
         setWinner(gameMessage);
     } else if (gameMessage.event === 'PLAYER_TWO_WINS') {
+        setWinner(gameMessage);
+    } else if (gameMessage.event === 'GAME_TIED') {
         setWinner(gameMessage);
     }
 }
@@ -135,6 +144,9 @@ function setPlayerTwo() {
     if (game.playerTwo == player.username) {
         $('#joinButton1').hide();
     }
+    addToChat('', '');
+    addToChat('Game', game.playerOne + ' vs ' + game.playerTwo);
+    addToChat('', '');
 }
 
 function startGame() {
@@ -164,10 +176,16 @@ function p2() {
 }
 
 function setWinner(gameMessage) {
-    console.log('GAME ' + gameMessage.game.id + ' is finished with result: ' + gameMessage.event);
+    addToChat('Game', gameMessage.game.playerOne + ' picked [' + moves[gameMessage.game.playerOneMove - 1] + ']');
+    addToChat('Game', gameMessage.game.playerTwo + ' picked [' + moves[gameMessage.game.playerTwoMove - 1] + ']');
 
-    console.log('[' + gameMessage.game.playerOne + '] had [' + gameMessage.game.playerOneMove + ']');
-    console.log('[' + gameMessage.game.playerTwo + '] had [' + gameMessage.game.playerTwoMove + ']');
+    addToChat('', '');
+    if (gameMessage.event === 'GAME_TIED') {
+        addToChat('Game', 'ITS A TIE - NOBODY WINS :\'(');
+    } else {
+        addToChat('Game', (gameMessage.event === 'PLAYER_ONE_WINS' ? gameMessage.game.playerOne : gameMessage.game.playerTwo) + ' wins!');
+    }
+    addToChat('', '');
 
     game = null;
 
